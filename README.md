@@ -15,7 +15,7 @@ Install [PyTorch](https://pytorch.org/), [PyTorch3D](https://github.com/facebook
 ```
 python tools/create_data nuscenes_data_prep --root_path /path/to/nuscenes 
 ```
-Our optical flow model used for cross-sensor regularization is available [here](https://drive.google.com/file/d/1VuCDLcUTYLyON12v81vGN14igG5TfR-j/view?usp=sharing).
+Our optical flow model used for the cross-sensor regularization is available [here](https://drive.google.com/file/d/1VuCDLcUTYLyON12v81vGN14igG5TfR-j/view?usp=sharing).
 
 ### Training
 ```
