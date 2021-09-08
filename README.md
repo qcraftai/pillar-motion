@@ -5,7 +5,7 @@
 
 [Chenxu Luo](https://chenxuluo.github.io/), [Xiaodong Yang](https://xiaodongyang.org/), [Alan Yuille](https://www.cs.jhu.edu/~ayuille/) <br>
 Self-Supervised Pillar Motion Learning for Autonomous Driving, CVPR 2021<br>
-[[Paper]](https://arxiv.org/pdf/2104.08683.pdf) [[YouTube]](https://youtu.be/Y00ujpmauUU) [[Poster]](poster.pdf)
+[[Paper]](https://arxiv.org/pdf/2104.08683.pdf) [[Poster]](poster.pdf) [[YouTube]](https://youtu.be/Y00ujpmauUU)
 
 ## Getting Started
 ### Installation
