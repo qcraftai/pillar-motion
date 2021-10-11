@@ -370,6 +370,7 @@ def create_nuscenes_infos(root_path, nsweeps=5):
 
     print(f"train sample: {len(train_nusc_infos)}, val sample: {len(val_nusc_infos)},  test sample: {len(test_nusc_infos)}")
     
+    root_path = Path(root_path)
     with open(root_path / "infos_train_{:02d}sweeps_twoframe_withcam.pkl".format(nsweeps), "wb") as f:
         pickle.dump(train_nusc_infos, f)
     with open(root_path / "infos_val_{:02d}sweeps_twoframe_withcam.pkl".format(nsweeps), "wb") as f:
