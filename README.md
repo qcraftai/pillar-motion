@@ -30,10 +30,8 @@ Please cite the following paper if this repo helps your research:
 @InProceedings{Luo_2021_CVPR,
     author    = {Luo, Chenxu and Yang, Xiaodong and Yuille, Alan},
     title     = {Self-Supervised Pillar Motion Learning for Autonomous Driving},
-    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-    month     = {June},
-    year      = {2021},
-    pages     = {3183-3192}
+    booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+    year      = {2021}
 }
 ```
 
