@@ -407,7 +407,7 @@ def lidar2cam(info, root_path):
 
     new_path = info['lidar_path'].split('/')[-1]
     cam_id = map_to_image[:, 0].astype(np.int8)
-    cam_coord = map_to_image[:, 1:]
+    cam_coord = map_to_image[:, 1:].astype(np.int32)
     if not osp.exists(osp.join(root_path, 'cam_id')):
         os.mkdir(osp.join(root_path, 'cam_id'))
     if not osp.exists(osp.join(root_path, 'cam_coords')):
