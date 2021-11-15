@@ -41,11 +41,11 @@ class Preprocess(object):
             res['lidar']['lidar_to_next_cam'] = np.stack(info['lidar_to_next_cam'])
             res['lidar']['next_cam_intri'] = np.stack(info['next_cam_intrinsic_list'])
        
-            points, res['lidar']['lidar_to_next_cam'] = \
-                prep.random_flip_xy(points, res['lidar']['lidar_to_next_cam'])
+            [points, res['lidar']['target_points']], res['lidar']['lidar_to_next_cam'] = \
+                prep.random_flip_xy([points, res['lidar']['target_points']], res['lidar']['lidar_to_next_cam'])
 
-            points, res['lidar']['lidar_to_next_cam']  = prep.global_scaling_v2(
-                points, res['lidar']['lidar_to_next_cam'],  *self.global_scaling_noise)
+            [points, res['lidar']['target_points']], res['lidar']['lidar_to_next_cam']  = prep.global_scaling_v2(
+                [points, res['lidar']['target_points']], res['lidar']['lidar_to_next_cam'],  *self.global_scaling_noise)
         
             res["lidar"]["points"] = points
 
