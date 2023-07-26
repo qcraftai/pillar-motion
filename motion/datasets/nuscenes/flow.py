@@ -300,8 +300,8 @@ def compute_flow(im1, im2):
     flo = np.swapaxes(np.swapaxes(flo, 0, 1), 1, 2) # 
     u_ = cv2.resize(flo[:,:,0],(W,H))
     v_ = cv2.resize(flo[:,:,1],(W,H))
-    u_ *= W/ float(W_) * 4
-    v_ *= H/ float(H_) * 4
+    u_ *= W/ float(W_)
+    v_ *= H/ float(H_)
     flo = np.dstack((u_,v_))
 
     return flo

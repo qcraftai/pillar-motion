@@ -43,34 +43,38 @@ class MotionHead(nn.Module):
         smooth_loss = torch.mean(torch.abs(pred_motion[:, 1:] - pred_motion[:, :-1])) + \
                       torch.mean(torch.abs(pred_motion[:, :, 1:] - pred_motion[:, :, :-1]))
         
-        pred_motion = pred_motion.view(-1, 2)  # batch *y * x, 2
 
-        coord = torch.floor((source_points[:, 1:3] - voxel_cfg.range[0]) / voxel_cfg.voxel_size[0])
-        nx = int((voxel_cfg.range[3]  - voxel_cfg.range[0]) / voxel_cfg.voxel_size[0])
-        ny = int((voxel_cfg.range[4]  - voxel_cfg.range[1]) / voxel_cfg.voxel_size[1])
-        pidx = source_points[:, 0] * nx * ny + coord[:, 1] * nx + coord[:, 0]
-        pidx = sidx.long()
-        selected_motion = pred_motion[pidx, :]
+        select = reduce(torch.logical_and, (torch.abs(source_points[:, 1]) < 32,
+                                    torch.abs(source_points[:, 2]) < 32))
+        source_points = source_points[select]
+        cam_id = cam_id[select]
+        points_cam_coords = points_cam_coords[select]
+        flow = flow[select]
+
+        coord = torch.floor((source_points[:, 1:3] - voxel_cfg.range[0]) / voxel_cfg.voxel_size[0]).long()
+        selected_motion = pred_motion[source_points[:, 0].long(), coord[:, 1], coord[:, 0]]
+        pred_points_all = source_points[:, 1:4] + \
+                        torch.cat((selected_motion, torch.zeros(selected_motion.size(0),1).to(source_points.device)), dim=1)
 
         with torch.no_grad():
             points_mask = torch.zeros(1, source_points.size(0)).to(source_points.device)
         
         for batchidx in range(batch_size):
-            batch_points = source_points[source_points[:, 0] == batchidx, 1:4]
-            pred_points[:, :2] = batch_points[:, :2] + selected_motion[source_points[:, 0] == batchidx]
+            pred_points = pred_points_all[source_points[:, 0] == batchidx]
             batch_targets = target_points[target_points[:, 0] == batchidx, 1:4]
-
             for camid in range(6):
+                cond = torch.logical_and(source_points[:, 0] == batchidx, cam_id[:, 1] == camid)
+                if torch.sum(cond) == 0:
+                    continue
                 with torch.no_grad():
-                    cond = torch.logical_and(source_points[:, 0] == batchidx, cam_id[:, 1] == camid)
-                    
                     select_cam_coords = points_cam_coords[cond]
                     selected_flow = flow[cond]
+                    pred_cam_points = pred_points_all[cond]
                 
                     ego_points = source_points[cond, 1:4]
                     ego_points_cam = torch.mm(lidar_to_next_cam[batchidx, camid][:3, :3],
                                                 ego_points.permute(1, 0).contiguous()) + \
-                                                lidar_to_next_cam[bit, camid][:3, 3].view(3, 1)  
+                                                lidar_to_next_cam[batchidx, camid][:3, 3].view(3, 1)  
 
                     ego_points_cam = torch.mm(next_cam_intrinsic[batchidx, camid], ego_points_cam)
                     ego_points_cam = ego_points_cam[:2] / (ego_points_cam[2:] + eps)
@@ -79,22 +83,25 @@ class MotionHead(nn.Module):
                     
                     points_mask[:, cond] = torch.exp(-0.1 * torch.clamp(ego_motion-5.0, min=0.0)) 
 
-                next_points_cam = torch.mm(lidar_to_next_cam[batchidx, camid][:3, :3], pred_points.permute(1, 0).contiguous()) + \
+                next_points_cam = torch.mm(lidar_to_next_cam[batchidx, camid][:3, :3], pred_cam_points.permute(1, 0).contiguous()) + \
                                lidar_to_next_cam[batchidx, camid][:3, 3].view(3, 1)  # 3, n
 
                 points_to_next_cam = torch.mm(next_cam_intrinsic[batchidx, camid], next_points_cam)
                 points_to_next_cam = points_to_next_cam[:2] / (points_to_next_cam[2:] + eps)
                 projected_motion = points_to_next_cam.permute(1, 0).contiguous() - select_cam_coords[:, 1:3]  # n  2
-                consistency_loss += torch.sum(torch.abs(projected_motion[:, 0:2] - selected_flow[:, 1:3]) * \
-                                    selected_flow[:, 3:] * points_all_mask)
-            
+                consistency_loss += torch.sum(torch.abs(projected_motion[:, 0:2] - selected_flow[:, 1:3]))/10
 
-            chamfer_loss += chamfer_distance(pred_points.unsqueeze(0), batch_targets.unsqueeze(0), weights=(1.0 - points_mask[:, source_points[:, 0] == bit])) 
+            chamfer_loss += chamfer_distance(pred_points.unsqueeze(0), batch_targets.unsqueeze(0),
+                                weights=(1.0 - points_mask[:, source_points[:, 0] == batchidx])) 
        
         consistency_loss = consistency_loss / torch.sum(cam_id[:, 1]>=0)
-        cos_loss = cos_loss / torch.sum(cam_id[:, 1]>=0)
         chamfer_loss /= batch_size
-        return {"chamfer_loss": closs, "smooth_loss": smooth_loss, "consistency_loss": consistency_loss}
+        loss = chamfer_loss + smooth_loss + consistency_loss 
+        return loss, {"loss": loss.detach().cpu(),
+                        "chamfer_loss": chamfer_loss.detach().cpu(),
+                        "smooth_loss": smooth_loss.detach().cpu(),
+                        "consistency_loss": consistency_loss.detach().cpu(),
+                         }
 
     def predict(self, example, pred_motion, voxel_cfg=None, **kwargs):
         meta = example['metadata'] 

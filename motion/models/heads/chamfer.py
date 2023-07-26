@@ -155,7 +155,7 @@ def chamfer_distance(
 
     if point_reduction == "mean":
         if weigths is not None:
-            cham_x /= weights.sum() #x_lengths
+            cham_x /= (weights.sum() + 1e-8) #x_lengths
         else:
             cham_x /= x_lengths
    
