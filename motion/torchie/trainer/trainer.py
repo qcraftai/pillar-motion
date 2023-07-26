@@ -62,16 +62,6 @@ def example_to_device(example, device=None, non_blocking=False) -> dict:
 
     return example_torch
 
-def parse_losses(losses):
-
-    log_vars = OrderedDict()
-    loss = losses["smooth_loss"] + losses["chamfer_loss"] + losses["consistency_loss"]*0.01 
-    for loss_name, loss_value in losses.items():
-        log_vars[loss_name] = loss_value.item()
-
-    return loss, log_vars
-
-
 
 class Prefetcher(object):
     def __init__(self, dataloader):
@@ -329,10 +319,8 @@ class Trainer(object):
         self.call_hook("after_data_to_device")
 
         if train_mode:
-            losses  = model(example, return_loss=True)
+            loss, log_vars  = model(example)
             self.call_hook("after_forward")
-            loss, log_vars = parse_losses(losses)#, offsetloss, pillarloss)
-            del losses
 
             outputs = dict(
                 loss=loss, log_vars=log_vars, num_samples=len(example["num_voxels"])
@@ -341,7 +329,7 @@ class Trainer(object):
 
             return outputs
         else:
-            return model(example, return_loss=False)
+            return model(example)
 
     def train(self, data_loader, epoch, **kwargs):
 

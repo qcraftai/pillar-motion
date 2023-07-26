@@ -97,10 +97,10 @@ class MotionHead(nn.Module):
         consistency_loss = consistency_loss / torch.sum(cam_id[:, 1]>=0)
         chamfer_loss /= batch_size
         loss = chamfer_loss + smooth_loss + consistency_loss 
-        return loss, {"loss": loss.detach().cpu(),
-                        "chamfer_loss": chamfer_loss.detach().cpu(),
-                        "smooth_loss": smooth_loss.detach().cpu(),
-                        "consistency_loss": consistency_loss.detach().cpu(),
+        return loss, {"loss": loss.detach().cpu().item(),
+                        "chamfer_loss": chamfer_loss.detach().cpu().item(),
+                        "smooth_loss": smooth_loss.detach().cpu().item(),
+                        "consistency_loss": consistency_loss.detach().cpu().item(),
                          }
 
     def predict(self, example, pred_motion, voxel_cfg=None, **kwargs):
