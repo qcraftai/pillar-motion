@@ -21,7 +21,7 @@ def collate(batch_list, samples_per_gpu=1):
         elif key == "metadata":
             ret[key] = elems
         
-        elif key in ["coordinates", "points", "points_cam_id", "flow", "points_cam_coords", "source_points", "target_points"]:
+        elif key in ["coordinates", "points", "cam_id", "flow", "cam_coords", "source_points", "target_points"]:
             coors = []
             for i, coor in enumerate(elems):
                 coor_pad = np.pad(

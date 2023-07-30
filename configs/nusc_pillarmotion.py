@@ -111,7 +111,7 @@ data = dict(
 
 # optimizer
 optimizer = dict(
-    type="Adam", amsgrad=0.0, wd=0.0001, fixed_wd=True, moving_average=False, initial_learning_rate=0.0001
+    type="AdamW", amsgrad=0.0, weight_decay=0.0001, lr=0.0001
 )
 
 """training hooks """

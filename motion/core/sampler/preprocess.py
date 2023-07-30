@@ -21,7 +21,8 @@ def random_flip_xy(points_list, trans, probability=0.5):
         [False, True], replace=False, p=[1 - probability, probability]
     )
     if enable:
-        points[:, 0] = -points[:, 0]
+        for points in points_list:
+            points[:, 0] = -points[:, 0]
         back = np.array([[-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
         for i in range(6):
             trans[i] = trans[i] @ back

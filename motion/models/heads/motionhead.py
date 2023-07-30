@@ -10,7 +10,7 @@ from .. import builder
 
 from ..registry import HEADS
 from .chamfer import chamfer_distance
-
+from functools import reduce
 
 @HEADS.register_module
 class MotionHead(nn.Module):

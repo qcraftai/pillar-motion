@@ -4,7 +4,7 @@ import re
 from collections import OrderedDict, defaultdict
 from functools import partial
 
-import apex
+#import apex
 import numpy as np
 import torch
 from motion.builder import _create_learning_rate_scheduler
@@ -150,15 +150,16 @@ def train_detector(model, dataset, cfg, distributed=False, validate=False, logge
         cfg.lr_config = None
     else:
         optimizer = build_optimizer(model, cfg.optimizer)
-        lr_scheduler = None
-        #lr_scheduler = _create_learning_rate_scheduler(
-        #    optimizer, cfg.lr_config, total_steps
-        #)
+        #lr_scheduler = None
+        lr_scheduler = _create_learning_rate_scheduler(
+            optimizer, cfg.lr_config, total_steps
+        )
+        cfg.lr_config = None
 
     # put model on gpus
     if distributed:
-        if cfg.use_syncbn:
-            model = apex.parallel.convert_syncbn_model(model)
+        #if cfg.use_syncbn:
+        #    model = apex.parallel.convert_syncbn_model(model)
         
         model = DistributedDataParallel(
             model.cuda(cfg.local_rank), device_ids=[cfg.local_rank],

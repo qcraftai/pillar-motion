@@ -47,8 +47,8 @@ def example_to_device(example, device=None, non_blocking=False) -> dict:
             "num_voxels",
             "motion",
             "gt_points_motion",
-            "lidar_to_next_cam", 'next_cam_intri',"points_cam_coords",
-            "points_cam_id", "flow", "source_points", "target_points",
+            "lidar_to_next_cam", 'next_cam_intri',
+            "cam_id", "cam_coords", "flow", "source_points", "target_points",
         ]:
             example_torch[k] = v.to(device, non_blocking=non_blocking)
         elif k == "calib":

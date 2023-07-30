@@ -68,45 +68,38 @@ class TextLoggerHook(LoggerHook):
 
         trainer.logger.info(log_str)
 
-        if trainer.world_size > 1:
-            class_names = trainer.model.module.bbox_head.class_names
-        else:
-            class_names = trainer.model.bbox_head.class_names
+        log_items = [f"task : motion"]
+        log_str = ""
+        for name, val in log_dict.items():
+            # TODO:
+            if name in [
+                "mode",
+                "Epoch",
+                "iter",
+                "lr",
+                "time",
+                "data_time",
+                "memory",
+                "epoch",
+                "transfer_time",
+                "forward_time",
+                "loss_parse_time",
+            ]:
+                continue
 
-        for idx, task_class_names in enumerate(class_names):
-            log_items = [f"task : {task_class_names}"]
-            log_str = ""
-            for name, val in log_dict.items():
-                # TODO:
-                if name in [
-                    "mode",
-                    "Epoch",
-                    "iter",
-                    "lr",
-                    "time",
-                    "data_time",
-                    "memory",
-                    "epoch",
-                    "transfer_time",
-                    "forward_time",
-                    "loss_parse_time",
-                ]:
-                    continue
+            if isinstance(val, float):
+                val = "{:.4f}".format(val)
 
-                if isinstance(val, float):
-                    val = "{:.4f}".format(val)
+            if isinstance(val, list):
+                log_items.append(
+                    "{}: {}".format(name, self._convert_to_precision4(val[idx]))
+                )
+            else:
+                log_items.append("{}: {}".format(name, val))
 
-                if isinstance(val, list):
-                    log_items.append(
-                        "{}: {}".format(name, self._convert_to_precision4(val[idx]))
-                    )
-                else:
-                    log_items.append("{}: {}".format(name, val))
-
-            log_str += ", ".join(log_items)
-            if idx == (len(class_names) - 1):
-                log_str += "\n"
-            trainer.logger.info(log_str)
+        log_str += ", ".join(log_items)
+        log_str += "\n"
+        trainer.logger.info(log_str)
 
     def _dump_log(self, log_dict, trainer):
         json_log = OrderedDict()

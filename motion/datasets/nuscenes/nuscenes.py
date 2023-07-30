@@ -41,6 +41,7 @@ class NuScenesDataset(PointCloudDataset):
         self._num_point_features = NuScenesDataset.NumPointFeatures
 
         self.version = version
+        self.test_mode=test_mode
 
 
     def load_infos(self, info_path):

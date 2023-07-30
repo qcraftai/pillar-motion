@@ -10,14 +10,14 @@ def read_file(path, num_point_feature=4):
 
     return points
 
-def read_sweep(sweep, transform):
+def read_sweep(sweep):
     min_distance = 1.0
     
     points_sweep = read_file(str(sweep["lidar_path"])).T
 
     nbr_points = points_sweep.shape[1]
     if sweep["transform_matrix"] is not None:
-        points_sweep[:3, :] = (transform.dot(sweep["transform_matrix"])).dot(
+        points_sweep[:3, :] = sweep["transform_matrix"].dot(
             np.vstack((points_sweep[:3, :], np.ones(nbr_points))))[:3, :]
     points_sweep = remove_close(points_sweep, min_distance)
     curr_times = sweep["time_lag"] * np.ones((1, points_sweep.shape[1]))  # time id
@@ -86,7 +86,7 @@ class LoadPointCloudFromFile(object):
                 
 
                 # load pre-computed point2image projection and optical flow
-                res["lidar"]["cam_id"] = np.fromfile(info['cam_id'], dtype=np.int8) # camera id [0,1,2,3,4,5] -1 for out of range
+                res["lidar"]["cam_id"] = np.fromfile(info['cam_id'], dtype=np.int8).reshape([-1, 1]) # camera id [0,1,2,3,4,5] -1 for out of range
                 res['lidar']['cam_coords'] = np.fromfile(info['cam_coords'], dtype=np.int32).reshape([-1, 2]) # camera coordinates
                 res["lidar"]["flow"] = np.fromfile(info['flow'], dtype=np.float32).reshape([-1, 3])  # u, v, valid
 
