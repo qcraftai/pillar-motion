@@ -1,0 +1,4 @@
+# @package trainer
+clip_grad_val: 35
+eval_every_nepochs: 1
+max_epochs: 20

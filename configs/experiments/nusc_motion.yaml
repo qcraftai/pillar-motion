@@ -1,0 +1,27 @@
+# @package _global_
+defaults:
+  - ../dataset/nusc_motion@data
+  - ../dataloader: default
+  - ../optimizer: adamW
+  - ../scheduler: onecycle
+  - ../trainer: default
+  - _self_
+
+model:
+  _target_: det3d.models.detectors.motionnet.MotionNet
+  reader:
+    _target_: det3d.models.readers.pillarmotion_encoder.PillarFeatureNet
+    num_input_features: 4
+    num_filters: [32]
+    voxel_size: [0.25, 0.25, 8]
+    pc_range: [-32.0, -32.0, -5.0, 32.0, 32.0, 3.0]
+  backbone:
+    _target_: det3d.models.backbones.stpn.STPN
+    height_feat_size: 32
+  head:
+    _target_: det3d.models.heads.motionhead.MotionHead
+    in_channels: 32
+    channels: 32
+  voxel_cfg:
+    voxel_size: [0.25, 0.25, 8]
+    range: [-32.0, -32.0, -5.0, 32.0, 32.0, 3.0]

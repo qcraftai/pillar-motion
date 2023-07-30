@@ -1,0 +1,16 @@
+
+train_dataset:
+  _target_: det3d.datasets.nuscenes.NuScenesMotionDataset
+  root_path: /mnt/sda/nuscenes
+  info_path: nusc_motion_train.pkl
+  loading_pipelines:
+    - load_pointcloud
+    - load_target
+
+
+val_dataset:
+  _target_: ${data.train_dataset._target_}
+  root_path: ${data.train_dataset.root_path}
+  info_path: nusc_motion_test.pkl
+  loading_pipelines:
+    - load_pointcloud
